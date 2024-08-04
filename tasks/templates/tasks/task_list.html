@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Task List</title>
-    {% load static %}
-    <link href="{% static 'css/output.css' %}" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <style>
+    <head>
+        <title>Task List</title>
+        {% load static %}
+        <link href="{% static 'css/output.css' %}" rel="stylesheet">
+        <link rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+              crossorigin="anonymous"
+              referrerpolicy="no-referrer" />
+        <style>
         .modal {
             display: none;
             position: fixed;
@@ -44,101 +47,119 @@
             clip: rect(0, 0, 0, 0);
             border: 0;
         }
-    </style>
-</head>
-<body class="bg-gray-100 p-8">
-    <div class="container mx-auto bg-white p-6 rounded-lg shadow-lg">
-        <header class="flex justify-between items-center mb-4">
-            <div>
-                {% if user.is_authenticated %}
-                    <span class="mr-4">Welcome, {{ user.username }}!</span>
-                    <button id="logoutButton" class="bg-red-500 text-white px-4 py-2 rounded">Logout</button>
-                    <form id="logoutForm" method="post" action="{% url 'logout' %}" style="display: none;">
-                        {% csrf_token %}
-                    </form>
-                {% endif %}
-            </div>
-        </header>
-        <h1 class="text-2xl font-bold mb-4">Task List</h1>
-        <button id="openModalBtn" class="bg-blue-500 text-white px-4 py-2 rounded mb-4">Create New Task</button>
-
-        <table class="min-w-full bg-white border-collapse">
-            <thead>
-                <tr>
-                    <th class="py-2 px-4 border-b border-gray-300 text-left">Title</th>
-                    <th class="py-2 px-4 border-b border-gray-300 text-left">Description</th>
-                    <th class="py-2 px-4 border-b border-gray-300 text-left">Completed</th>
-                    <th class="py-2 px-4 border-b border-gray-300 text-left">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for task in tasks %}
-                    <tr class="hover:bg-gray-100">
-                        <td class="py-2 px-4 border-b border-gray-300">{{ task.title }}</td>
-                        <td class="py-2 px-4 border-b border-gray-300">{{ task.description }}</td>
-                        <td class="py-2 px-4 border-b border-gray-300">{% if task.completed %}Completed{% else %}Not Completed{% endif %}</td>
-                        <td class="py-2 px-4 border-b border-gray-300">
-                            <button class="{% if task.completed %}bg-gray-400 text-gray-700{% else %}bg-green-500 text-white{% endif %} px-2 py-1 rounded complete-task-btn" data-task-id="{{ task.id }}" {% if task.completed %}disabled{% endif %}>
-                                <i class="fas fa-check" aria-hidden="true"></i> <span class="sr-only">Mark Complete</span>
-                            </button>
-                            <button class="bg-red-500 text-white px-2 py-1 rounded delete-task-btn" data-task-id="{{ task.id }}">
-                                <i class="fas fa-trash-alt" aria-hidden="true"></i> <span class="sr-only">Delete</span>
-                            </button>
-                        </td>
+        </style>
+    </head>
+    <body class="bg-gray-100 p-8">
+        <div class="container mx-auto bg-white p-6 rounded-lg shadow-lg">
+            <header class="flex justify-between items-center mb-4">
+                <div>
+                    {% if user.is_authenticated %}
+                        <span class="mr-4">Welcome, {{ user.username }}!</span>
+                        <button id="logoutButton" class="bg-red-500 text-white px-4 py-2 rounded">Logout</button>
+                        <form id="logoutForm"
+                              method="post"
+                              action="{% url 'logout' %}"
+                              style="display: none">
+                            {% csrf_token %}
+                        </form>
+                    {% endif %}
+                </div>
+            </header>
+            <h1 class="text-2xl font-bold mb-4">Task List</h1>
+            <button id="openModalBtn"
+                    class="bg-blue-500 text-white px-4 py-2 rounded mb-4">Create New Task</button>
+            <table class="min-w-full bg-white border-collapse">
+                <thead>
+                    <tr>
+                        <th class="py-2 px-4 border-b border-gray-300 text-left">Title</th>
+                        <th class="py-2 px-4 border-b border-gray-300 text-left">Description</th>
+                        <th class="py-2 px-4 border-b border-gray-300 text-left">Completed</th>
+                        <th class="py-2 px-4 border-b border-gray-300 text-left">Actions</th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
-    <div id="taskModal" class="modal fixed inset-0 flex items-center justify-center bg-black bg-opacity-50" style="display: none;">
-        <div class="modal-content bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
-            <div class="flex justify-end">
-                <span class="text-gray-600 cursor-pointer text-2xl close">&times;</span>
-            </div>
-            <h2 class="text-xl font-bold mb-4 text-center">Create a New Task</h2>
-            <form method="post" id="taskForm" action="{% url 'create_task' %}">
-                {% csrf_token %}
-                <div class="mb-4">
-                    {{ form.as_p }}
+                </thead>
+                <tbody>
+                    {% for task in tasks %}
+                        <tr class="hover:bg-gray-100">
+                            <td class="py-2 px-4 border-b border-gray-300">{{ task.title }}</td>
+                            <td class="py-2 px-4 border-b border-gray-300">{{ task.description }}</td>
+                            <td class="py-2 px-4 border-b border-gray-300">
+                                {% if task.completed %}
+                                    Completed
+                                {% else %}
+                                    Not Completed
+                                {% endif %}
+                            </td>
+                            <td class="py-2 px-4 border-b border-gray-300">
+                                <button class="{% if task.completed %}bg-gray-400 text-gray-700{% else %}bg-green-500 text-white{% endif %} px-2 py-1 rounded complete-task-btn"
+                                        data-task-id="{{ task.id }}"
+                                        {% if task.completed %}disabled{% endif %}>
+                                    <i class="fas fa-check" aria-hidden="true"></i> <span class="sr-only">Mark Complete</span>
+                                </button>
+                                <button class="bg-red-500 text-white px-2 py-1 rounded delete-task-btn"
+                                        data-task-id="{{ task.id }}">
+                                    <i class="fas fa-trash-alt" aria-hidden="true"></i> <span class="sr-only">Delete</span>
+                                </button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div id="taskModal"
+             class="modal fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+             style="display: none">
+            <div class="modal-content bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+                <div class="flex justify-end">
+                    <span class="text-gray-600 cursor-pointer text-2xl close">&times;</span>
                 </div>
-                <div class="flex justify-between">
-                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Create Task</button>
-                    <button type="button" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 cancel-modal-btn">Cancel</button>
+                <h2 class="text-xl font-bold mb-4 text-center">Create a New Task</h2>
+                <form method="post" id="taskForm" action="{% url 'create_task' %}">
+                    {% csrf_token %}
+                    <div class="mb-4">{{ form.as_p }}</div>
+                    <div class="flex justify-between">
+                        <button type="submit"
+                                class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Create Task</button>
+                        <button type="button"
+                                class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 cancel-modal-btn">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div id="confirmDeleteModal"
+             class="modal fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+             style="display: none">
+            <div class="modal-content bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+                <div class="flex justify-end">
+                    <span class="text-gray-600 cursor-pointer text-2xl close">&times;</span>
                 </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="confirmDeleteModal" class="modal fixed inset-0 flex items-center justify-center bg-black bg-opacity-50" style="display: none;">
-        <div class="modal-content bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
-            <div class="flex justify-end">
-                <span class="text-gray-600 cursor-pointer text-2xl close">&times;</span>
-            </div>
-            <h2 class="text-xl font-bold mb-4 text-center">Confirm Deletion</h2>
-            <p>Are you sure you want to delete this task?</p>
-            <div class="mt-4 flex justify-between">
-                <button class="bg-red-500 text-white px-4 py-2 rounded confirm-delete-btn">Delete</button>
-                <button type="button" class="bg-gray-500 text-white px-4 py-2 rounded cancel-delete-btn">Cancel</button>
+                <h2 class="text-xl font-bold mb-4 text-center">Confirm Deletion</h2>
+                <p>Are you sure you want to delete this task?</p>
+                <div class="mt-4 flex justify-between">
+                    <button class="bg-red-500 text-white px-4 py-2 rounded confirm-delete-btn">Delete</button>
+                    <button type="button"
+                            class="bg-gray-500 text-white px-4 py-2 rounded cancel-delete-btn">Cancel</button>
+                </div>
             </div>
         </div>
-    </div>
-
-    <div id="confirmCompleteModal" class="modal fixed inset-0 flex items-center justify-center bg-black bg-opacity-50" style="display: none;">
-        <div class="modal-content bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
-            <div class="flex justify-end">
-                <span class="text-gray-600 cursor-pointer text-2xl close">&times;</span>
-            </div>
-            <h2 class="text-xl font-bold mb-4 text-center">Confirm Completion</h2>
-            <p>Are you sure you want to mark this task as complete?</p>
-            <div class="mt-4 flex justify-between">
-                <button class="bg-green-500 text-white px-4 py-2 rounded confirm-complete-btn">Complete</button>
-                <button type="button" class="bg-gray-500 text-white px-4 py-2 rounded cancel-complete-btn">Cancel</button>
+        <div id="confirmCompleteModal"
+             class="modal fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+             style="display: none">
+            <div class="modal-content bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+                <div class="flex justify-end">
+                    <span class="text-gray-600 cursor-pointer text-2xl close">&times;</span>
+                </div>
+                <h2 class="text-xl font-bold mb-4 text-center">Confirm Completion</h2>
+                <p>Are you sure you want to mark this task as complete?</p>
+                <div class="mt-4 flex justify-between">
+                    <button class="bg-green-500 text-white px-4 py-2 rounded confirm-complete-btn">Complete</button>
+                    <button type="button"
+                            class="bg-gray-500 text-white px-4 py-2 rounded cancel-complete-btn">Cancel</button>
+                </div>
             </div>
         </div>
-    </div>
-
-<script>
+        <script>
     document.addEventListener('DOMContentLoaded', function() {
         var taskModal = document.getElementById("taskModal");
         var confirmDeleteModal = document.getElementById("confirmDeleteModal");
@@ -262,6 +283,6 @@
             document.getElementById('logoutForm').submit();
         };
     });
-</script>
-</body>
+        </script>
+    </body>
 </html>
