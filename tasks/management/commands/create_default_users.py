@@ -12,4 +12,4 @@ class Command(BaseCommand):
 
         if not User.objects.filter(username='testuser').exists():
             User.objects.create_user('testuser', 'test@test.com', 'plain-password')
-            self.stdout.write(self.style.SUCCESS('Successfully created user "other_user"'))
+            self.stdout.write(self.style.SUCCESS('Successfully created user "testuser"'))
