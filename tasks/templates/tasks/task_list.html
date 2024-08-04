@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Task List</title>
+</head>
+<body>
+    <h1>Task List</h1>
+    <ul>
+        {% for task in tasks %}
+            <li>
+                <strong>{{ task.title }}</strong>: {{ task.description }} - {% if task.completed %}Completed{% else %}Not Completed{% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
