@@ -7,8 +7,13 @@
 2. navigate to `http://127.0.0.1:8000/` and login with one of the users below.
 
 
-**superuser:** username: `admin` password: `plain-password`  
-**user:** username: `testuser` password: `plain-password`  
+- **superuser:**
+  - username: `admin`
+  - password: `plain-password`
+   
+- **user:**
+  -  username: `testuser`
+  - password: `plain-password`  
 
 Alternativley run the following commands:
 ```sh 
