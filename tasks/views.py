@@ -26,3 +26,12 @@ def delete_task(request, task_id):
         task.delete()
         return JsonResponse({'message': 'Task deleted successfully'})
     return HttpResponseBadRequest("Invalid request")
+
+
+def complete_task(request, task_id):
+    if request.method == 'POST':
+        task = get_object_or_404(Task, id=task_id)
+        task.completed = True
+        task.save()
+        return JsonResponse({'message': 'Task marked as complete'})
+    return HttpResponseBadRequest("Invalid request")

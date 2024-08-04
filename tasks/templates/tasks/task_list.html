@@ -56,6 +56,7 @@
                         <td class="py-2 px-4 border-b border-gray-300">{{ task.description }}</td>
                         <td class="py-2 px-4 border-b border-gray-300">{% if task.completed %}Completed{% else %}Not Completed{% endif %}</td>
                         <td class="py-2 px-4 border-b border-gray-300">
+                            <button class="bg-green-500 text-white px-2 py-1 rounded complete-task-btn" data-task-id="{{ task.id }}">Complete</button>
                             <button class="bg-red-500 text-white px-2 py-1 rounded delete-task-btn" data-task-id="{{ task.id }}">Delete</button>
                         </td>
                     </tr>
@@ -151,7 +152,7 @@
                 method: 'DELETE',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRFToken': '{{ csrf_token }}' 
+                    'X-CSRFToken': '{{ csrf_token }}'  // Ensure CSRF token is included
                 }
             }).then(response => {
                 if (response.ok) {
@@ -161,7 +162,7 @@
                 }
             }).then(data => {
                 confirmDeleteModal.style.display = "none";
-                location.reload();
+                location.reload(); // Reload the page to reflect the deleted task
             }).catch(error => {
                 console.error('Error:', error);
                 alert('An error occurred: ' + JSON.stringify(error));
@@ -171,6 +172,30 @@
         cancelDeleteBtn.onclick = function() {
             confirmDeleteModal.style.display = "none";
         };
+
+        document.querySelectorAll('.complete-task-btn').forEach(button => {
+            button.onclick = function() {
+                var taskId = this.getAttribute('data-task-id');
+                fetch(`{% url 'complete_task' 0 %}`.slice(0, -2) + taskId + '/', {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': '{{ csrf_token }}'  // Ensure CSRF token is included
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        return response.json().then(err => { throw err; });
+                    }
+                }).then(data => {
+                    location.reload(); // Reload the page to reflect the completed task
+                }).catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred: ' + JSON.stringify(error));
+                });
+            };
+        });
     </script>
 </body>
 </html>
