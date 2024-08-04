@@ -2,13 +2,16 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse, HttpResponseBadRequest
 from .models import Task
 from .forms import TaskForm
+from django.contrib.auth.decorators import login_required
 
 
+@login_required
 def task_list(request):
     tasks = Task.objects.all()
     return render(request, 'tasks/task_list.html', {'tasks': tasks, 'form': TaskForm()})
 
 
+@login_required
 def create_task(request):
     if request.method == 'POST':
         form = TaskForm(request.POST)
@@ -20,6 +23,7 @@ def create_task(request):
     return HttpResponseBadRequest("Invalid request")
 
 
+@login_required
 def delete_task(request, task_id):
     if request.method == 'DELETE':
         task = get_object_or_404(Task, id=task_id)
@@ -28,6 +32,7 @@ def delete_task(request, task_id):
     return HttpResponseBadRequest("Invalid request")
 
 
+@login_required
 def complete_task(request, task_id):
     if request.method == 'POST':
         task = get_object_or_404(Task, id=task_id)

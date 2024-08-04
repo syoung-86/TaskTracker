@@ -37,6 +37,17 @@
 </head>
 <body class="bg-gray-100 p-8">
     <div class="container mx-auto bg-white p-6 rounded-lg shadow-lg">
+        <header class="flex justify-between items-center mb-4">
+            <div>
+                {% if user.is_authenticated %}
+                    <span class="mr-4">Welcome, {{ user.username }}!</span>
+                    <button id="logoutButton" class="bg-red-500 text-white px-4 py-2 rounded">Logout</button>
+                    <form id="logoutForm" method="post" action="{% url 'logout' %}" style="display: none;">
+                        {% csrf_token %}
+                    </form>
+                {% endif %}
+            </div>
+        </header>
         <h1 class="text-2xl font-bold mb-4">Task List</h1>
         <button id="openModalBtn" class="bg-blue-500 text-white px-4 py-2 rounded mb-4">Create New Task</button>
 
@@ -88,114 +99,145 @@
         </div>
     </div>
 
-    <script>
-        var taskModal = document.getElementById("taskModal");
-        var confirmDeleteModal = document.getElementById("confirmDeleteModal");
-        var btn = document.getElementById("openModalBtn");
-        var span = document.getElementsByClassName("close")[0];
-        var confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
-        var cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
-        var deleteTaskId = null;
+    <div id="confirmCompleteModal" class="modal fixed inset-0 flex items-center justify-center">
+        <div class="modal-content bg-white p-6 rounded-lg shadow-lg w-1/3">
+            <h2 class="text-xl font-bold mb-4">Confirm Completion</h2>
+            <p>Are you sure you want to mark this task as complete?</p>
+            <div class="mt-4">
+                <button id="confirmCompleteBtn" class="bg-green-500 text-white px-4 py-2 rounded mr-2">Complete</button>
+                <button id="cancelCompleteBtn" class="bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>
+            </div>
+        </div>
+    </div>
 
-        btn.onclick = function() {
-            taskModal.style.display = "flex";
-        }
+<script>
+    var taskModal = document.getElementById("taskModal");
+    var confirmDeleteModal = document.getElementById("confirmDeleteModal");
+    var confirmCompleteModal = document.getElementById("confirmCompleteModal");
+    var btn = document.getElementById("openModalBtn");
+    var span = document.getElementsByClassName("close")[0];
+    var confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
+    var cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
+    var confirmCompleteBtn = document.getElementById("confirmCompleteBtn");
+    var cancelCompleteBtn = document.getElementById("cancelCompleteBtn");
+    var deleteTaskId = null;
+    var completeTaskId = null;
 
-        span.onclick = function() {
+    btn.onclick = function() {
+        taskModal.style.display = "flex";
+    }
+
+    span.onclick = function() {
+        taskModal.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        if (event.target == taskModal) {
             taskModal.style.display = "none";
         }
-
-        window.onclick = function(event) {
-            if (event.target == taskModal) {
-                taskModal.style.display = "none";
-            }
-            if (event.target == confirmDeleteModal) {
-                confirmDeleteModal.style.display = "none";
-            }
-        }
-
-        document.getElementById('taskForm').onsubmit = function(event) {
-            event.preventDefault();
-            var form = this;
-            var formData = new FormData(form);
-            
-            fetch(form.action, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            }).then(response => {
-                if (response.ok) {
-                    return response.json();
-                } else {
-                    return response.json().then(err => { throw err; });
-                }
-            }).then(data => {
-                taskModal.style.display = "none"; // Close the modal
-                location.reload(); // Reload the page to reflect the new task
-            }).catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred: ' + JSON.stringify(error));
-            });
-        };
-
-        document.querySelectorAll('.delete-task-btn').forEach(button => {
-            button.onclick = function() {
-                deleteTaskId = this.getAttribute('data-task-id');
-                confirmDeleteModal.style.display = "flex";
-            };
-        });
-
-        confirmDeleteBtn.onclick = function() {
-            fetch(`{% url 'delete_task' 0 %}`.slice(0, -2) + deleteTaskId + '/', {
-                method: 'DELETE',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRFToken': '{{ csrf_token }}'  // Ensure CSRF token is included
-                }
-            }).then(response => {
-                if (response.ok) {
-                    return response.json();
-                } else {
-                    return response.json().then(err => { throw err; });
-                }
-            }).then(data => {
-                confirmDeleteModal.style.display = "none";
-                location.reload(); // Reload the page to reflect the deleted task
-            }).catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred: ' + JSON.stringify(error));
-            });
-        };
-
-        cancelDeleteBtn.onclick = function() {
+        if (event.target == confirmDeleteModal) {
             confirmDeleteModal.style.display = "none";
-        };
+        }
+        if (event.target == confirmCompleteModal) {
+            confirmCompleteModal.style.display = "none";
+        }
+    }
 
-        document.querySelectorAll('.complete-task-btn').forEach(button => {
-            button.onclick = function() {
-                var taskId = this.getAttribute('data-task-id');
-                fetch(`{% url 'complete_task' 0 %}`.slice(0, -2) + taskId + '/', {
-                    method: 'POST',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRFToken': '{{ csrf_token }}'  // Ensure CSRF token is included
-                    }
-                }).then(response => {
-                    if (response.ok) {
-                        return response.json();
-                    } else {
-                        return response.json().then(err => { throw err; });
-                    }
-                }).then(data => {
-                    location.reload(); // Reload the page to reflect the completed task
-                }).catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred: ' + JSON.stringify(error));
-                });
-            };
+    document.getElementById('taskForm').onsubmit = function(event) {
+        event.preventDefault();
+        var form = this;
+        var formData = new FormData(form);
+        
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        }).then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                return response.json().then(err => { throw err; });
+            }
+        }).then(data => {
+            taskModal.style.display = "none";
+            location.reload();
+        }).catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred: ' + JSON.stringify(error));
         });
-    </script>
+    };
+
+    document.querySelectorAll('.delete-task-btn').forEach(button => {
+        button.onclick = function() {
+            deleteTaskId = this.getAttribute('data-task-id');
+            confirmDeleteModal.style.display = "flex";
+        };
+    });
+
+    confirmDeleteBtn.onclick = function() {
+        fetch(`{% url 'delete_task' 0 %}`.slice(0, -2) + deleteTaskId + '/', {
+            method: 'DELETE',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        }).then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                return response.json().then(err => { throw err; });
+            }
+        }).then(data => {
+            confirmDeleteModal.style.display = "none";
+            location.reload();
+        }).catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred: ' + JSON.stringify(error));
+        });
+    };
+
+    cancelDeleteBtn.onclick = function() {
+        confirmDeleteModal.style.display = "none";
+    };
+
+    document.querySelectorAll('.complete-task-btn').forEach(button => {
+        button.onclick = function() {
+            completeTaskId = this.getAttribute('data-task-id');
+            confirmCompleteModal.style.display = "flex";
+        };
+    });
+
+    confirmCompleteBtn.onclick = function() {
+        fetch(`{% url 'complete_task' 0 %}`.slice(0, -2) + completeTaskId + '/', {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        }).then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                return response.json().then(err => { throw err; });
+            }
+        }).then(data => {
+            confirmCompleteModal.style.display = "none";
+            location.reload();
+        }).catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred: ' + JSON.stringify(error));
+        });
+    };
+
+    cancelCompleteBtn.onclick = function() {
+        confirmCompleteModal.style.display = "none";
+    };
+    document.getElementById('logoutButton').onclick = function(event) {
+        event.preventDefault();
+        document.getElementById('logoutForm').submit();
+    };
+</script>
 </body>
 </html>
