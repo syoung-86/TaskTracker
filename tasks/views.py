@@ -17,9 +17,16 @@ def create_task(request):
         form = TaskForm(request.POST)
         if form.is_valid():
             form.save()
-            return JsonResponse({'message': 'Task created successfully'})
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'message': 'Task created successfully'})
+            else:
+                return redirect('task_list')
         else:
-            return JsonResponse({'errors': form.errors}, status=400)
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'errors': form.errors}, status=400)
+            else:
+                return render(request, 'tasks/task_list.html', {'form': form})
+
     return HttpResponseBadRequest("Invalid request")
 
 
