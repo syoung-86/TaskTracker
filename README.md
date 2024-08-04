@@ -3,7 +3,7 @@
 ## Setup
 
 1. Run setup.sh 
-- this script setups a python virtual enviroment, installs pip and node depenencies, creates 2 users then runs the django server.  
+- this script setups a python virtual enviroment, installs pip and node depenencies, creates 2 users then starts the django server.  
 2. navigate to `http://127.0.0.1:8000/` and login with one of the users below.
 
 
