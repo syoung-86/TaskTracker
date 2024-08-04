@@ -2,8 +2,6 @@
 
 set -e
 
-set -x
-
 if [ -d "venv" ]; then
     echo "Activating virtual environment..."
     source venv/bin/activate
@@ -21,6 +19,9 @@ npm install
 
 echo "Running Django migrations..."
 python manage.py migrate
+
+echo "Creating default users..."
+python manage.py create_default_users
 
 echo "Starting Django development server..."
 python manage.py runserver
