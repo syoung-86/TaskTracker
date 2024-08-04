@@ -1,4 +1,4 @@
-<!DOCTYPE html>// Close the modal
+<!DOCTYPE html>
 <html>
 <head>
     <title>Task List</title>
@@ -39,25 +39,39 @@
     </style>
 </head>
 <body>
-    <h1>Task List</h1>
-    <button id="openModalBtn">Create New Task</button>
+<body class="bg-gray-100 p-8">
+    <div class="container mx-auto bg-white p-6 rounded-lg shadow-lg">
+        <h1 class="text-2xl font-bold mb-4">Task List</h1>
+        <button id="openModalBtn" class="bg-blue-500 text-white px-4 py-2 rounded mb-4">Create New Task</button>
 
-    <ul>
-        {% for task in tasks %}
-            <li>
-                <strong>{{ task.title }}</strong>: {{ task.description }} - {% if task.completed %}Completed{% else %}Not Completed{% endif %}
-            </li>
-        {% endfor %}
-    </ul>
+        <table class="min-w-full bg-white border-collapse">
+            <thead>
+                <tr>
+                    <th class="py-2 px-4 border-b border-gray-300 text-left">Title</th>
+                    <th class="py-2 px-4 border-b border-gray-300 text-left">Description</th>
+                    <th class="py-2 px-4 border-b border-gray-300 text-left">Completed</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in tasks %}
+                    <tr class="hover:bg-gray-100">
+                        <td class="py-2 px-4 border-b border-gray-300">{{ task.title }}</td>
+                        <td class="py-2 px-4 border-b border-gray-300">{{ task.description }}</td>
+                        <td class="py-2 px-4 border-b border-gray-300">{% if task.completed %}Completed{% else %}Not Completed{% endif %}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-    <div id="taskModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Create a New Task</h2>
+    <div id="taskModal" class="modal fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center" style="display: none;">
+        <div class="modal-content bg-white p-6 rounded-lg shadow-lg w-1/2">
+            <span class="close text-right text-gray-600 cursor-pointer">&times;</span>
+            <h2 class="text-xl font-bold mb-4">Create a New Task</h2>
             <form method="post" id="taskForm" action="{% url 'create_task' %}">
                 {% csrf_token %}
                 {{ form.as_p }}
-                <button type="submit">Create Task</button>
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Create Task</button>
             </form>
         </div>
     </div>
